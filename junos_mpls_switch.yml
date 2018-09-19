@@ -27,7 +27,7 @@
       mail:
         host: localhost
         port: 25
-        to: {{ email_address }}
+        to: "{{ email_address }}"
         subject: MPLS Switch Config
         body: Attached is your generated configuration file 
         attach: base.conf
