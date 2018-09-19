@@ -32,9 +32,9 @@
 {% set facility_name = 'cle1' %}
 {% endif %}
 set system host-name mpls.{{ facility_name }}
-set system root-authentication plain-text-password-value {{ password }}
+set system root-authentication plain-text-password-value br@!wuRst2
 set system login user databank class super-user
-set system login user databank authentication plain-text-password-value {{ password }}
+set system login user databank authentication plain-text-password-value br@!wuRst2
 set system services ssh root-login deny
 set system services ssh protocol-version v2
 set system services ssh client-alive-count-max 5
