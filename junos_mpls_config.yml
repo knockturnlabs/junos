@@ -1,0 +1,29 @@
+---
+- name: Junos MPLS Config
+  hosts: "{{ host_name }}"
+#  hosts: lsw2.dfw3
+  gather_facts: no
+  connection: local
+  vars:
+#    client_name: Test-MPLS-Client
+#    client_interface: ge-0/0/20
+#    interface_description: Test-Client_DFW1_ge-0/0/10
+#    vll_endpoint: 212.69.156.5
+#    vcircuit_id: 100
+#    provider_info:
+      host: "{{ inventory_hostname }}"
+#      username: databank
+#      ssh_keyfile: "/root/.ssh/id_rsa.pub"
+
+  tasks:
+    - name: Configure MPLS
+      junos_config:
+        lines:
+          - set groups {{ client_name }} interfaces {{ client_interface }} mtu 9114
+          - set groups {{ client_name }} interfaces {{ client_interface }} encapsulation ethernet-ccc
+          - set groups {{ client_name }} interfaces {{ client_interface }} unit 0 description {{ interface_description }}
+          - set groups {{ client_name }} interfaces {{ client_interface }} unit 0 family ccc
+          - set groups {{ client_name }} protocols l2circuit neighbor {{ vll_endpoint }} interface {{ client_interface }} virtual-circuit-id {{ vcircuit_id }}
+          - set apply-groups {{ client_name }}
+        provider: "{{ provider_info }}"
+

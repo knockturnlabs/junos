@@ -1,5 +1,5 @@
 - name: NETCONF Test - JunOS
-  hosts: slc2-int-switches-junos
+  hosts: lsw1.dfw3
   roles:
   - Juniper.junos
   connection: local
