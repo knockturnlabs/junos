@@ -10,7 +10,7 @@
 #    interface_description: Test-Client_DFW1_ge-0/0/10
 #    vll_endpoint: 212.69.156.5
 #    vcircuit_id: 100
-#    provider_info:
+    provider_info:
       host: "{{ inventory_hostname }}"
 #      username: databank
 #      ssh_keyfile: "/root/.ssh/id_rsa.pub"
