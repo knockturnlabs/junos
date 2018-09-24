@@ -1,12 +1,38 @@
-- name: NETCONF Test - JunOS
-  hosts: lsw1.dfw3
+- name: Test - JunOS
+  hosts: lsw2.dfw3
   roles:
   - Juniper.junos
   connection: local
   gather_facts: no
+  vars:
+    provider_info:
+      host: "{{ inventory_hostname }}"
+      username: databank
+      ssh_keyfile: "/root/.ssh/id_rsa.pub"
+
 
   tasks:
 
   - name: Checking NETCONF connectivity
     wait_for: host={{ inventory_hostname }} port=830 timeout=5
 
+  - name: Get Facts
+    junos_facts:
+      config_format: set
+      gather_subset: config
+      provider: "{{ provider_info }}"
+    register: results
+
+  - debug:
+      msg: "{{ results.ansible_facts.ansible_net_config }}"
+
+  - name: send email
+    mail:
+      host: localhost
+      port: 25
+      to: zgould@databank.com
+      subject: Verification
+      body: "{{ results.ansible_facts.ansible_net_config | regex_replace('\n','\"\r\n') | select('match', '.*CUSTOMER-VOLT-9581.*') }}"
+#      body: "{{ results.ansible_facts.ansible_net_config | regex_replace('\n','\"\r\n') | regex_search('CUSTOMER-VOLT-9581') }}"
+    delegate_to: localhost
+    run_once: True
