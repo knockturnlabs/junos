@@ -19,22 +19,22 @@
     - name: Set Fact (DFW1)
       set_fact:
         vll_endpoint: '212.69.156.20'
-        when: "{{ vll_host }}" == 'mpls1.dfw1'
+        when:  vll_host == 'mpls1.dfw1'
 
     - name: Set Fact (DFW3)
       set_fact:
         vll_endpoint: '212.69.156.21'
-        when: "{{ vll_host }}" == 'mpls1.dfw3'
+        when: vll_host == 'mpls1.dfw3'
 
     - name: Set Fact (SLC2)
       set_fact:
         vll_endpoint: '199.204.90.5'
-        when: "{{ vll_host }}" == 'mpls1.slc2'
+        when: vll_host == 'mpls1.slc2'
 
     - name: Set Fact (SLC3)
       set_fact:
         vll_endpoint: '199.204.90.6'
-        when: "{{ vll_host }}" == 'mpls1.slc3'
+        when: vll_host == 'mpls1.slc3'
 
     - name: Configure MPLS Circuit
       junos_config:
