@@ -1,19 +1,19 @@
 ---
 - name: Junos MPLS Switch
-  hosts: localhost
-#  remote_user: {{ remote_user }}
+#  hosts: localhost
+  remote_user: {{ remote_user }}
   gather_facts: no
   connection: local
   vars:
-    facility: DFW1
+#    facility: DFW1
     #facility_name: 
-    password: thisIsAPASSWORD
-    syslog: 69.55.77.88
-    int_desc_1: test_interface.KC1_et0/0/1
-    int_desc_2: test_interface2.KC2_et0/0/1
-    loopback_ip: 192.168.99.10/32
-    mgmt_ip: 172.18.11.12/24
-    mgmt_gateway: 172.18.11.1
+#    password: thisIsAPASSWORD
+#    syslog: 69.55.77.88
+#    int_desc_1: test_interface.KC1_et0/0/1
+#    int_desc_2: test_interface2.KC2_et0/0/1
+#    loopback_ip: 192.168.99.10/32
+#    mgmt_ip: 172.18.11.12/24
+#    mgmt_gateway: 172.18.11.1
 #    serial_number_1: SE101010101010101
 #    serial_number_2: SE010100010101110
 #    email_address: zgould@databank.com
