@@ -1,35 +1,51 @@
 {% if facility == 'DFW1' %}
 {% set facility_name = 'dfw1' %}
+{% set syslog = '69.44.220.5' %}
 {% elif facility == 'DFW2' %}
 {% set facility_name = 'dfw2' %}
+{% set syslog = '69.44.220.5' %}
 {% elif facility == 'DFW3' %}
 {% set facility_name = 'dfw3' %}
+{% set syslog = '69.44.220.5' %}
 {% elif facility == 'MCI1' %}
 {% set facility_name = 'mci1' %}
+{% set syslog = '208.89.119.67' %}
 {% elif facility == 'MCI2' %}
 {% set facility_name = 'MCI2' %}
+{% set syslog = '204.13.100.121' %}
 {% elif facility == 'MCI3' %}
 {% set facility_name = 'mci3' %}
+{% set syslog = '204.13.100.121' %}
 {% elif facility == 'SLC1' %}
 {% set facility_name = 'slc1' %}
+{% set syslog = '74.113.248.248' %}
 {% elif facility == 'SLC2' %}
 {% set facility_name = 'SLC2' %}
+{% set syslog = '74.113.248.248' %}
 {% elif facility == 'SLC3' %}
 {% set facility_name = 'SLC3' %}
+{% set syslog = '74.113.248.248' %}
 {% elif facility == 'MSP1' %}
 {% set facility_name = 'msp1' %}
+{% set syslog = '74.113.248.248' %}
 {% elif facility == 'MSP2' %}
 {% set facility_name = 'msp2' %}
+{% set syslog = '74.113.248.248' %}
 {% elif facility == 'BAL1' %}
 {% set facility_name = 'balt1' %}
+{% set syslog = '74.113.248.248' %}
 {% elif facility == 'BAL2' %}
 {% set facility_name = 'balt2' %}
+{% set syslog = '74.113.248.248' %}
 {% elif facility == 'PIT1' %}
 {% set facility_name = 'pit1' %}
+{% set syslog = '74.113.248.248' %}
 {% elif facility == 'ATL1' %}
 {% set facility_name = 'atl1' %}
+{% set syslog = '74.113.248.248' %}
 {% elif facility == 'CLE1' %}
 {% set facility_name = 'cle1' %}
+{% set syslog = '74.113.248.248' %}
 {% endif %}
 set system host-name mpls.{{ facility_name }}
 set system root-authentication plain-text-password-value br@!wuRst2
@@ -72,12 +88,12 @@ set interfaces et-0/0/24 unit 0 description {{ int_desc_1 }}
 set interfaces et-0/0/24 unit 0 family inet unnumbered-address lo0.0
 set interfaces et-0/0/24 unit 0 family inet6
 set interfaces et-0/0/24 unit 0 family mpls
-delete interface et-1/0/24
-set interfaces et-1/0/24 mtu 9114
-set interfaces et-1/0/24 unit 0 description {{ int_desc_2 }}
-set interfaces et-1/0/24 unit 0 family inet unnumbered-address lo0.0
-set interfaces et-1/0/24 unit 0 family inet6
-set interfaces et-1/0/24 unit 0 family mpls
+delete interface et-0/0/23
+set interfaces et-0/0/23 mtu 9114
+set interfaces et-0/0/23 unit 0 description {{ int_desc_2 }}
+set interfaces et-0/0/23 unit 0 family inet unnumbered-address lo0.0
+set interfaces et-0/0/23 unit 0 family inet6
+set interfaces et-0/0/23 unit 0 family mpls
 set interfaces lo0 unit 0 family inet filter input-list limit-inet-mgmt
 set interfaces lo0 unit 0 family inet address {{ loopback_ip }}
 set interfaces vme unit 0 family inet address {{ mgmt_ip }}
@@ -105,23 +121,23 @@ set protocols ospf traffic-engineering
 set protocols ospf export ospf-out
 set protocols ospf area 0.0.0.0 interface lo0.0 passive
 set protocols ospf area 0.0.0.0 interface et-0/0/24.0 interface-type p2p
-set protocols ospf area 0.0.0.0 interface et-1/0/24.0 interface-type p2p
+set protocols ospf area 0.0.0.0 interface et-0/0/23.0 interface-type p2p
 set protocols ospf3 export ospf3-out
 set protocols ospf3 area 0.0.0.0 interface lo0.0 passive
 set protocols ospf3 area 0.0.0.0 interface et-0/0/24.0 interface-type p2p
-set protocols ospf3 area 0.0.0.0 interface et-1/0/24.0 interface-type p2p
+set protocols ospf3 area 0.0.0.0 interface et-0/0/23.0 interface-type p2p
 set protocols ldp track-igp-metric
 set protocols ldp interface et-0/0/24.0
-set protocols ldp interface et-1/0/24.0
+set protocols ldp interface et-0/0/23.0
 set protocols ldp interface lo0.0
 set protocols lldp interface all
 set protocols lldp interface et-0/0/24
-set protocols lldp interface et-1/0/24
+set protocols lldp interface et-0/0/23
 set protocols lldp-med interface all
 set protocols lldp-med interface et-0/0/24
-set protocols lldp-med interface et-1/0/24
+set protocols lldp-med interface et-0/0/23
 set protocols igmp-snooping vlan default
-set protocols rstp interface all
+delete protocols rstp interface all
 set policy-options prefix-list mgmt-inet 10.3.3.0/24
 set policy-options prefix-list mgmt-inet 192.168.246.23/32
 set policy-options prefix-list mgmt-inet 192.168.246.25/32
@@ -170,10 +186,4 @@ set firewall family inet filter limit-inet-mgmt term block-ntp from protocol udp
 set firewall family inet filter limit-inet-mgmt term block-ntp from port ntp
 set firewall family inet filter limit-inet-mgmt term block-ntp then discard
 set firewall family inet filter limit-inet-mgmt term else then accept
-set virtual-chassis preprovisioned
-set virtual-chassis no-split-detection
-set virtual-chassis member 0 role routing-engine
-set virtual-chassis member 0 serial-number {{ serial_number_1 }}
-set virtual-chassis member 1 role routing-engine
-set virtual-chassis member 1 serial-number {{ serial_number_2 }}
 

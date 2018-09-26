@@ -14,9 +14,9 @@
     loopback_ip: 192.168.99.10/32
     mgmt_ip: 172.18.11.12/24
     mgmt_gateway: 172.18.11.1
-    serial_number_1: SE101010101010101
-    serial_number_2: SE010100010101110
-    email_address: zgould@databank.com
+#    serial_number_1: SE101010101010101
+#    serial_number_2: SE010100010101110
+#    email_address: zgould@databank.com
 
   tasks:
     - name: Configure Test Junos
