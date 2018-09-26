@@ -1,0 +1,46 @@
+---
+- name: Junos BGP Config
+  hosts: "{{ host_name }}"
+#  hosts: lsw2.dfw3
+#  remote_user: databank
+  gather_facts: no
+  connection: local
+  vars:
+#    client_prefixes: |-
+#      192.168.0.0/24
+#      172.172.0.0/23
+#    client_name: GCTS
+#    peer_description: GCTS-W18-7666
+#    bgp_peer: 8.8.8.8
+#    bgp_peer_asn: 1376
+    provider_info:
+      host: "{{ inventory_hostname }}"
+#      username: databank
+#      ssh_keyfile: "/root/.ssh/id_rsa.pub"
+
+  tasks:
+    - name: Configure Prefixes
+      junos_config:
+        lines:
+          - set groups {{ client_name }} policy-options prefix-list {{ client_name }}-BGP-PREFIX-V4 {{ item }}
+        provider: "{{ provider_info }}"
+      with_items: "{{ client_prefixes.splitlines() }}"
+
+    - name: Configure BGP
+      junos_config:
+        lines:
+          - set groups {{ client_name }} protocols bgp group {{ client_name }}-BGP type external
+          - set groups {{ client_name }} protocols bgp group {{ client_name }}-BGP description {{ peer_description }}
+          - set groups {{ client_name }} protocols bgp group {{ client_name }}-BGP import {{ client_name }}-BGP-IMPORT
+          - set groups {{ client_name }} protocols bgp group {{ client_name }}-BGP export {{ client_name }}-BGP-EXPORT
+          - set groups {{ client_name }} protocols bgp group {{ client_name }}-BGP family inet unicast
+          - set groups {{ client_name }} protocols bgp group {{ client_name }}-BGP neighbor {{ bgp_peer }}
+          - set groups {{ client_name }} protocols bgp group {{ client_name }}-BGP peer-as {{ bgp_peer_asn }}
+          - set groups {{ client_name }} policy-options policy-statement {{ client_name }}-BGP-IMPORT term {{ client_name }}-PREFIXES-V4 from prefix-list {{ client_name }}-BGP-PREFIX-V4
+          - set groups {{ client_name }} policy-options policy-statement {{ client_name }}-BGP-IMPORT term {{ client_name }}-PREFIXES-V4 then accept
+          - set groups {{ client_name }} policy-options policy-statement {{ client_name }}-BGP-IMPORT term CATCH then reject
+          - set groups {{ client_name }} policy-options policy-statement {{ client_name }}-BGP-EXPORT term ACCEPTROUTES from prefix-list DEFAULT
+          - set groups {{ client_name }} policy-options policy-statement {{ client_name }}-BGP-EXPORT term ACCEPTROUTES then accept
+          - set groups {{ client_name }} policy-options policy-statement {{ client_name }}-BGP-EXPORT term CATCH then reject
+        provider: "{{ provider_info }}"
+
