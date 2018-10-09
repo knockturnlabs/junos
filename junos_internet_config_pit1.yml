@@ -1,0 +1,38 @@
+---
+- name: PIT1 Managed Internet Config
+  hosts: "{{ host_name }}"
+#  hosts: lsw1.pit1
+  gather_facts: no
+  connection: local
+  vars:
+#    client_name: TEST
+#    interface_number: 0/0/40
+#    client_vlan: 900
+#    client_ip_address: 192.168.0.11/24
+#    client_workorder: W17-8080
+#    client_subnet: 192.168.0.0/24
+    provider_info:
+      host: "{{ inventory_hostname }}"
+      username: databank
+#      ssh_keyfile: "/root/.ssh/id_rsa.pub"
+
+  tasks:
+    - name: Configure Managed Internet Circuit
+      junos_config:
+        lines:
+          - delete interfaces ge-{{ interface_number }}
+          - set groups {{ client_name }} interfaces irb unit {{ client_vlan }} family inet filter input {{ client_name }}-FILTER
+          - set groups {{ client_name }} interfaces irb unit {{ client_vlan }} family inet filter output BLOCK-RFC1918
+          - set groups {{ client_name }} interfaces irb unit {{ client_vlan }} family inet address {{ client_ip_address }}
+          - set groups {{ client_name }} interfaces ge-{{ interface_number }} ether-options ethernet-switch-profile storm-control default
+          - set groups {{ client_name }} interfaces ge-{{ interface_number }} unit 0 description {{ client_workorder }}
+          - set groups {{ client_name }} interfaces ge-{{ interface_number }} unit 0 family ethernet-switching interface-mode access
+          - set groups {{ client_name }} interfaces ge-{{ interface_number }} unit 0 family ethernet-switching vlan members {{ client_vlan }}
+          - set groups {{ client_name }} policy-options prefix-list {{ client_name }}-PREFIX-LIST {{ client_subnet }}
+          - set groups {{ client_name }} firewall family inet filter {{ client_name }}-FILTER term CUSTOMER-IP-SPACE from source-prefix-list {{ client_name }}-PREFIX-LIST
+          - set groups {{ client_name }} firewall family inet filter {{ client_name }}-FILTER term CUSTOMER-IP-SPACE then accept
+          - set groups {{ client_name }} firewall family inet filter {{ client_name }}-FILTER term BLOCK then discard
+          - set groups {{ client_name }} vlans vlan-{{ client_vlan }} vlan-id {{ client_vlan }}
+          - set groups {{ client_name }} vlans vlan-{{ client_vlan }} l3-interface irb.{{ client_vlan }}
+          - set apply-groups {{ client_name }}
+        provider: "{{ provider_info }}"
