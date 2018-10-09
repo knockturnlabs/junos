@@ -36,3 +36,4 @@
           - set groups {{ client_name }} vlans vlan-{{ client_vlan }} l3-interface irb.{{ client_vlan }}
           - set apply-groups {{ client_name }}
         provider: "{{ provider_info }}"
+        timeout: 75
