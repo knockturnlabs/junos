@@ -13,6 +13,7 @@
 #    client_subnet: 192.168.0.0/24
     provider_info:
       host: "{{ inventory_hostname }}"
+      timeout: 90
 #      username: databank
 #      ssh_keyfile: "/root/.ssh/id_rsa.pub"
 
@@ -36,4 +37,3 @@
           - set groups {{ client_name }} vlans vlan-{{ client_vlan }} l3-interface irb.{{ client_vlan }}
           - set apply-groups {{ client_name }}
         provider: "{{ provider_info }}"
-        timeout: 75
