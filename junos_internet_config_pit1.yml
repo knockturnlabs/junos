@@ -13,7 +13,7 @@
 #    client_subnet: 192.168.0.0/24
     provider_info:
       host: "{{ inventory_hostname }}"
-      username: databank
+#      username: databank
 #      ssh_keyfile: "/root/.ssh/id_rsa.pub"
 
   tasks:
