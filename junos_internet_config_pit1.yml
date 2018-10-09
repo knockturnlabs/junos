@@ -26,7 +26,7 @@
           - set groups {{ client_name }} interfaces irb unit {{ client_vlan }} family inet filter output BLOCK-RFC1918
           - set groups {{ client_name }} interfaces irb unit {{ client_vlan }} family inet address {{ client_ip_address }}
           - set groups {{ client_name }} interfaces ge-{{ interface_number }} ether-options ethernet-switch-profile storm-control default
-          - set groups {{ client_name }} interfaces ge-{{ interface_number }} unit 0 description {{ client_workorder }}
+          - set groups {{ client_name }} interfaces ge-{{ interface_number }} unit 0 description {{ client_name }}-{{ client_workorder }}
           - set groups {{ client_name }} interfaces ge-{{ interface_number }} unit 0 family ethernet-switching interface-mode access
           - set groups {{ client_name }} interfaces ge-{{ interface_number }} unit 0 family ethernet-switching vlan members {{ client_vlan }}
           - set groups {{ client_name }} policy-options prefix-list {{ client_name }}-PREFIX-LIST {{ client_subnet }}
