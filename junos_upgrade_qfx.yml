@@ -1,5 +1,5 @@
 - name: Install JunOS
-  hosts: cr2.pit1
+  hosts: ssw1.pit1
   serial: 1
   roles:
   - Juniper.junos
@@ -8,8 +8,8 @@
 
   vars:
    pkg_dir: /tftpboot/juniper/
-   OS_version: 17.1R2.7
-   OS_package: jinstall-ppc-17.1R2.7-signed.tgz
+   OS_version: 17.4R2.4
+   OS_package: jinstall-host-qfx-10-f-flex-x86-64-17.4R2.4-secure-signed.tgz
    log_dir: /var/log/ansible
    netconf:
     host: "{{ inventory_hostname }}"

@@ -1,34 +1,34 @@
 ---
 - name: PIT1 Managed Internet Config
   hosts: "{{ host_name }}"
-#  hosts: lsw1.pit1
+#  hosts: pit1
   gather_facts: no
   connection: local
   vars:
 #    client_name: TEST
-#    interface_number: 0/0/40
+#    interface_number: 100
+#    redundant_port: 'yes'
 #    client_vlan: 900
-#    client_ip_address: 192.168.0.11/24
-#    client_workorder: W17-8080
+#    client_ip_address_1: 192.168.0.11/24
+#    client_ip_address_2: 192.168.0.12/24
+#    client_virtual_ip: 192.168.0.1
+#    client_workorder: W17-7777
 #    client_subnet: 192.168.0.0/24
     provider_info:
       host: "{{ inventory_hostname }}"
       timeout: 90
-#      username: databank
-#      ssh_keyfile: "/root/.ssh/id_rsa.pub"
+      username: databank
+      ssh_keyfile: "/root/.ssh/id_rsa.pub"
 
   tasks:
-    - name: Configure Managed Internet Circuit
+    - name: Configure SSW1 Internet + VRRP
       junos_config:
         lines:
-          - delete interfaces ge-{{ interface_number }}
           - set groups {{ client_name }} interfaces irb unit {{ client_vlan }} family inet filter input {{ client_name }}-FILTER
           - set groups {{ client_name }} interfaces irb unit {{ client_vlan }} family inet filter output BLOCK-RFC1918
-          - set groups {{ client_name }} interfaces irb unit {{ client_vlan }} family inet address {{ client_ip_address }}
-          - set groups {{ client_name }} interfaces ge-{{ interface_number }} ether-options ethernet-switch-profile storm-control default
-          - set groups {{ client_name }} interfaces ge-{{ interface_number }} unit 0 description {{ client_name }}-{{ client_workorder }}
-          - set groups {{ client_name }} interfaces ge-{{ interface_number }} unit 0 family ethernet-switching interface-mode access
-          - set groups {{ client_name }} interfaces ge-{{ interface_number }} unit 0 family ethernet-switching vlan members {{ client_vlan }}
+          - set groups {{ client_name }} interfaces irb unit {{ client_vlan }} family inet address {{ client_ip_address_1 }} vrrp-group 0 virtual-address {{ client_virtual_ip }}
+          - set groups {{ client_name }} interfaces irb unit {{ client_vlan }} family inet address {{ client_ip_address_1 }} vrrp-group 0 priority 200
+          - set groups {{ client_name }} interfaces irb unit {{ client_vlan }} family inet address {{ client_ip_address_1 }} vrrp-group 0 accept-data
           - set groups {{ client_name }} policy-options prefix-list {{ client_name }}-PREFIX-LIST {{ client_subnet }}
           - set groups {{ client_name }} firewall family inet filter {{ client_name }}-FILTER term CUSTOMER-IP-SPACE from source-prefix-list {{ client_name }}-PREFIX-LIST
           - set groups {{ client_name }} firewall family inet filter {{ client_name }}-FILTER term CUSTOMER-IP-SPACE then accept
@@ -36,4 +36,55 @@
           - set groups {{ client_name }} vlans vlan-{{ client_vlan }} vlan-id {{ client_vlan }}
           - set groups {{ client_name }} vlans vlan-{{ client_vlan }} l3-interface irb.{{ client_vlan }}
           - set apply-groups {{ client_name }}
+          - set interfaces et-0/0/7 unit 0 family ethernet-switching vlan members {{ client_vlan }}
         provider: "{{ provider_info }}"
+      when: inventory_hostname == 'ssw1.pit1' or inventory_hostname == '172.20.31.12'
+
+    - name: Configure SSW2 Internet + VRRP
+      junos_config:
+        lines:
+          - set groups {{ client_name }} interfaces irb unit {{ client_vlan }} family inet filter input {{ client_name }}-FILTER
+          - set groups {{ client_name }} interfaces irb unit {{ client_vlan }} family inet filter output BLOCK-RFC1918
+          - set groups {{ client_name }} interfaces irb unit {{ client_vlan }} family inet address {{ client_ip_address_2 }} vrrp-group 0 virtual-address {{ client_virtual_ip }}
+          - set groups {{ client_name }} interfaces irb unit {{ client_vlan }} family inet address {{ client_ip_address_2 }} vrrp-group 0 priority 120
+          - set groups {{ client_name }} interfaces irb unit {{ client_vlan }} family inet address {{ client_ip_address_2 }} vrrp-group 0 accept-data
+          - set groups {{ client_name }} policy-options prefix-list {{ client_name }}-PREFIX-LIST {{ client_subnet }}
+          - set groups {{ client_name }} firewall family inet filter {{ client_name }}-FILTER term CUSTOMER-IP-SPACE from source-prefix-list {{ client_name }}-PREFIX-LIST
+          - set groups {{ client_name }} firewall family inet filter {{ client_name }}-FILTER term CUSTOMER-IP-SPACE then accept
+          - set groups {{ client_name }} firewall family inet filter {{ client_name }}-FILTER term BLOCK then discard
+          - set groups {{ client_name }} vlans vlan-{{ client_vlan }} vlan-id {{ client_vlan }}
+          - set groups {{ client_name }} vlans vlan-{{ client_vlan }} l3-interface irb.{{ client_vlan }}
+          - set apply-groups {{ client_name }}
+          - set interfaces et-0/0/7 unit 0 family ethernet-switching vlan members {{ client_vlan }}
+        provider: "{{ provider_info }}"
+      when: inventory_hostname == 'ssw2.pit1' or inventory_hostname == '172.20.31.13'
+
+    - name: Configure LSW1 Client Hand-Off Port (Primary)
+      junos_config:
+        lines:
+          - delete interfaces ge-0/0/{{ interface_number }}
+          - set groups {{ client_name }} interfaces ge-0/0/{{ interface_number }} ether-options ethernet-switch-profile storm-control default
+          - set groups {{ client_name }} interfaces ge-0/0/{{ interface_number }} unit 0 description {{ client_name }}-{{ client_workorder }}
+          - set groups {{ client_name }} interfaces ge-0/0/{{ interface_number }} unit 0 family ethernet-switching interface-mode access
+          - set groups {{ client_name }} interfaces ge-0/0/{{ interface_number }} unit 0 family ethernet-switching vlan members {{ client_vlan }}
+          - set groups {{ client_name }} vlans vlan-{{ client_vlan }} vlan-id {{ client_vlan }}
+          - set apply-groups {{ client_name }}
+          - set protocols rstp interface ge-0/0/{{ interface_number }} no-root-port
+          - set interfaces et-0/1/3 unit 0 family ethernet-switching vlan members {{ client_vlan }}
+          - set interfaces et-1/1/3 unit 0 family ethernet-switching vlan members {{ client_vlan }}
+        provider: "{{ provider_info }}"
+      when: inventory_hostname == 'lsw.pit1' or inventory_hostname == '38.140.44.194'
+
+    - name: Configure LSW1 Client Hand-Off Port (Secondary)
+      junos_config:
+        lines:
+          - delete interfaces ge-1/0/{{ interface_number }}
+          - set groups {{ client_name }} interfaces ge-1/0/{{ interface_number }} ether-options ethernet-switch-profile storm-control default
+          - set groups {{ client_name }} interfaces ge-1/0/{{ interface_number }} unit 0 description {{ client_name }}-{{ client_workorder }}
+          - set groups {{ client_name }} interfaces ge-1/0/{{ interface_number }} unit 0 family ethernet-switching interface-mode access
+          - set groups {{ client_name }} interfaces ge-1/0/{{ interface_number }} unit 0 family ethernet-switching vlan members {{ client_vlan }}
+          - set apply-groups {{ client_name }}
+          - set protocols rstp interface ge-1/0/{{ interface_number }} no-root-port
+        provider: "{{ provider_info }}"
+      when: (inventory_hostname == '38.140.44.194' or inventory_hostname == '172.20.31.15') and redundant_port == 'yes'
+

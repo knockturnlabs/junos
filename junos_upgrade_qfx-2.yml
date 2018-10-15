@@ -1,5 +1,5 @@
 - name: Install JunOS
-  hosts: cr2.pit1
+  hosts: ssw2.pit1
   serial: 1
   roles:
   - Juniper.junos
@@ -8,8 +8,8 @@
 
   vars:
    pkg_dir: /tftpboot/juniper/
-   OS_version: 17.1R2.7
-   OS_package: jinstall-ppc-17.1R2.7-signed.tgz
+   OS_version: 17.4R2.4
+   OS_package: jinstall-host-qfx-10-f-flex-x86-64-17.4R2.4-secure-signed.tgz
    log_dir: /var/log/ansible
    netconf:
     host: "{{ inventory_hostname }}"
@@ -22,13 +22,14 @@
     wait_for: host={{ inventory_hostname }} port=830 timeout=5
 
   - name: Install JunOS Software
-    junos_install_os:
+    juniper_junos_software:
      user=databank
      host={{ inventory_hostname }}
-     version={{ OS_version }}
      reboot=yes
-     package={{ pkg_dir }}/{{ OS_package }}
+     install_timeout=3600
+     local_package={{ pkg_dir }}/{{ OS_package }}
      logfile={{ log_dir }}/software.log
+     timeout=300
     register: sw
     notify:
     - wait_reboot
